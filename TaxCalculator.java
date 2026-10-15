@@ -18,7 +18,6 @@ public class TaxCalculator {
 	public static double soc_health2 = 0; // of basis up to  7,75 %
 	public static double advanceTaxPaidadvanceTax = 0; // advance tax 18%
 	public static double taxFreeIncome = 46.33; // tax-free income monthly 46,33 PLN
-	public static double advanceTaxPaidadvanceTax = 0;
 	public static double advanceTaxPaid0 = 0;
 
 
