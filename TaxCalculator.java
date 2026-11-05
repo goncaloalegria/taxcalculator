@@ -1,152 +1,68 @@
 package com.bartoszwalter.students.taxes;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 
 public class TaxCalculator {
 
-	public static double income = 0;
-	public static char contractType = ' ';
 	// social security taxes
-	public static double soc_security = 0; // 9,76% of basis
-	public static double soc_health_security = 0; // 1,5% of basis
-	public static double soc_sick_security = 0; // 2,45% of basis
+	private static final double SOCIAL_SECURITY_RATE = 9.76; // 9,76% of basis
+	private static final double HEALTH_SOCIAL_SECURITY_RATE = 1.5; // 1,5% of basis
+	private static final double SICKNESS_SOCIAL_SECURITY_RATE = 2.45; // 2,45% of basis
 	// health-related taxes
-	public static double taxDeductibleExpenses = 111.25; 
-	public static double soc_health1 = 0; // of basis up to 9%
-	public static double soc_health2 = 0; // of basis up to  7,75 %
-	public static double advanceTaxPaidadvanceTax = 0; // advance tax 18%
-	public static double taxFreeIncome = 46.33; // tax-free income monthly 46,33 PLN
-	public static double advanceTaxPaid0 = 0;
+	private static final double HEALTH_TAX_RATE = 9; // of basis up to 9%
+	private static final double HEALTH_TAX_DEDUCTIBLE_RATE = 7.75; // of basis up to  7,75 %
+	private static final double ADVANCE_TAX_RATE = 18; // advance tax 18%
 
+	private final DecimalFormat noDecimals = new DecimalFormat("#");
 
-public static void main(String[] args) {
-		try {
-			InputStreamReader isr = new InputStreamReader(System.in);
-			BufferedReader br = new BufferedReader(isr);
+	public TaxResult calculate(double income, ContractType contractType) {
+		TaxResult result = new TaxResult();
+		result.income = income;
+		result.contractType = contractType;
 
-			System.out.print("Enter income: ");
-			income = Double.parseDouble(br.readLine());
+		calculateSocialSecurity(result);
+		calculateHealthTax(result);
+		calculateAdvanceTax(result);
+		calculateNetIncome(result);
 
-			System.out.print("Contract Type: (E)mployment, (C)ivil: ");
-			contractType = br.readLine().charAt(0);
-
-		} catch (Exception ex) {
-			System.out.println("Incorrect");
-			System.err.println(ex);
-			return;
-		}
-
-		DecimalFormat df00 = new DecimalFormat("#.00");
-		DecimalFormat df = new DecimalFormat("#");
-
-		if (contractType == 'E') {
-			System.out.println("EMPLOYMENT");
-			System.out.println("Income " + income);
-			double d_income = calculateIncome(income);
-			System.out.println("Social security tax "
-					+ df00.format(soc_security));
-
-			System.out.println("Health social security tax    "
-					+ df00.format(soc_health_security));
-			System.out.println("Sickness social security tax  "
-					+ df00.format(soc_sick_security));
-			System.out
-					.println("Income basis for health social security: "
-							+ income);
-			calculateOtherTaxes(income);
-			System.out.println("Health social security tax: 9% = "
-					+ df00.format(soc_health1) + " 7,75% = " + df00.format(soc_health2));
-			System.out.println("Tax deductible expenses "
-					+ taxDeductibleExpenses
-	 );
-			double taxedIncome = income - taxDeductibleExpenses ;
-			double taxedIncome0 = Double
-					.parseDouble(df.format(taxedIncome));
-			System.out.println("income " + taxedIncome
-					+ " rounded " + df.format(taxedIncome0));
-			calculateTax(taxedIncome0);
-			System.out.println("Advance tax 18 % = "
-					+ advanceTax);
-			System.out.println("Tax free income = " + taxFreeIncome);
-			double taxPaid = advanceTax - taxFreeIncome;
-			System.out.println("Reduced tax = "
-					+ df00.format(taxPaid));
-			calculateAdvanceTax();
-			advanceTaxPaid0 = Double.parseDouble(df.format(advanceTaxPaid));
-			System.out.println("Advance tax paid = "
-					+ df00.format(advanceTaxPaid) + " rounded = "
-					+ df.format(advanceTaxPaid0));
-			double netIncome = income
-					- ((soc_security + soc_health_security + soc_sick_security) + soc_health1 + advanceTaxPaid0);
-			System.out.println();
-			System.out
-					.println("Net income = "
-							+ df00.format(netIncome));
-		} else if (contractType == 'C') {
-			System.out.println("income " + income);
-			double income = calculateIncome(income);
-			System.out.println("Social security tax = "
-					+ df00.format(soc_security));
-			System.out.println("Health social security tax = "
-					+ df00.format(soc_health_security));
-			System.out.println("Sickness social security tax = "
-					+ df00.format(soc_sick_security));
-			System.out
-					.println("Income for calculating health security tax: "
-							+ income);
-			calculateOtherTaxes(income);
-			System.out.println("Health security tax: 9% = "
-					+ df00.format(soc_health1) + " 7,75% = " + df00.format(soc_health2));
-			taxFreeIncome = 0;
-			taxDeductibleExpenses  = (income * 20) / 100;
-			System.out.println("Tax deductible expenses = "
-					+ taxDeductibleExpenses
-	 );
-			double taxedIncome = income - taxDeductibleExpenses ;
-			double taxedIncome0 = Double.parseDouble(df.format(taxedIncome));
-			System.out.println("income to be taxed = " + taxedIncome
-					+ " rounded = " + df.format(taxedIncome0));
-			calculateTax(taxedIncome0);
-			System.out.println("Advance tax 18 % = "
-					+ advanceTax);
-			double  advanceTax;
-			System.out.println("Already paid tax = "
-					+ df00.format(taxPaid));
-			calculateAdvanceTax();
-			advanceTaxPaid0 = Double.parseDouble(df.format(advanceTaxPaid));
-			System.out.println("Advance tax  = "
-					+ df00.format(advanceTaxPaid) + " rounded = "
-					+ df.format(advanceTaxPaid0));
-			double netIncome = income
-					- ((soc_security + soc_health_security + soc_sick_security) + soc_health1 + advanceTaxPaid0);
-			System.out.println();
-			System.out
-					.println("Net income = "
-							+ df00.format(netIncome));
-		} else {
-			System.out.println("Unknown type of contract!");
-		}
+		return result;
 	}
 
-	public static void calculateAdvanceTax() {
-		advanceTaxPaidadvanceTax = advanceTax - soc_health2 - taxFreeIncome;
+	private void calculateSocialSecurity(TaxResult result) {
+		result.socialSecurity = percentOf(result.income, SOCIAL_SECURITY_RATE);
+		result.healthSocialSecurity = percentOf(result.income, HEALTH_SOCIAL_SECURITY_RATE);
+		result.sicknessSocialSecurity = percentOf(result.income, SICKNESS_SOCIAL_SECURITY_RATE);
+		result.incomeBasis = result.income - result.socialSecurity - result.healthSocialSecurity - result.sicknessSocialSecurity; // era o d_income
 	}
 
-	public static void calculateTax(double income) {
-		advanceTax = (income * 18) / 100;
+	private void calculateHealthTax(TaxResult result) {
+		result.healthTax = percentOf(result.incomeBasis, HEALTH_TAX_RATE); // era o soc_health1
+		result.healthTaxDeductible = percentOf(result.incomeBasis, HEALTH_TAX_DEDUCTIBLE_RATE); // era o soc_health2
 	}
 
-	public static double calculateIncome(double income) {
-		soc_security = (income * 9.76) / 100;
-		soc_health_security = (income * 1.5) / 100;
-		soc_sick_secur = (income * 2.45) / 100;
-		return (income - soc_security - soc_health_security - soc_sick_secur);
+	private void calculateAdvanceTax(TaxResult result) {
+		result.taxDeductibleExpenses = result.contractType.taxDeductibleExpenses(result.incomeBasis);
+		result.taxFreeIncome = result.contractType.taxFreeIncome();
+
+		result.taxedIncome = result.incomeBasis - result.taxDeductibleExpenses;
+		result.taxedIncomeRounded = roundToUnits(result.taxedIncome);
+		result.advanceTax = percentOf(result.taxedIncomeRounded, ADVANCE_TAX_RATE);
+		result.reducedTax = result.advanceTax - result.taxFreeIncome; // era o taxPaid
+		result.advanceTaxPaid = result.advanceTax - result.healthTaxDeductible - result.taxFreeIncome;
+		result.advanceTaxPaidRounded = roundToUnits(result.advanceTaxPaid);
 	}
 
-	public static void calculateOtherTaxes(double income) {
-		soc_health1 = (income * 9) / 100;
-		soc_health2 = (income * 7.75) / 100;
+	private void calculateNetIncome(TaxResult result) {
+		double socialSecurityTotal = result.socialSecurity + result.healthSocialSecurity + result.sicknessSocialSecurity;
+		result.netIncome = result.income - (socialSecurityTotal + result.healthTax + result.advanceTaxPaidRounded);
+	}
+
+	private double percentOf(double value, double rate) {
+		return (value * rate) / 100;
+	}
+
+	// igual ao Double.parseDouble(df.format(...)) que estava repetido no main
+	private double roundToUnits(double value) {
+		return Double.parseDouble(noDecimals.format(value));
 	}
 }
