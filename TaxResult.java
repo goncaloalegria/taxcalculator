@@ -1,23 +1,22 @@
 package com.bartoszwalter.students.taxes;
 
-// guarda os valores das contas para o TaxPrinter imprimir
+// plain data structure: filled by Contract.calculate() and read by TaxPrinter
 public class TaxResult {
 
-	ContractType contractType;
-	double income;
-	double socialSecurity;
-	double healthSocialSecurity;
-	double sicknessSocialSecurity;
-	double incomeBasis;
-	double healthTax;
-	double healthTaxDeductible;
-	double taxDeductibleExpenses;
-	double taxFreeIncome;
-	double taxedIncome;
-	double taxedIncomeRounded;
-	double advanceTax;
-	double reducedTax;
-	double advanceTaxPaid;
-	double advanceTaxPaidRounded;
-	double netIncome;
+	Money income;
+	Money socialSecurity;
+	Money healthSocialSecurity;
+	Money sicknessSocialSecurity;
+	Money incomeBasis;
+	Money healthTax;
+	Money healthTaxDeductible;
+	Money taxDeductibleExpenses;
+	Money taxFreeIncome;
+	Money taxedIncome;
+	Money taxedIncomeRounded;
+	Money advanceTax;
+	Money reducedTax;
+	Money advanceTaxPaid;
+	Money advanceTaxPaidRounded;
+	Money netIncome;
 }

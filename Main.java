@@ -19,20 +19,20 @@ public class Main {
 
 	private static void run() throws IOException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-		double income = readIncome(reader);
-		ContractType contractType = readContractType(reader);
+		Money income = readIncome(reader);
+		Contract contract = readContract(reader);
 
-		TaxResult result = new TaxCalculator().calculate(income, contractType);
-		new TaxPrinter().print(result);
+		TaxResult result = contract.calculate(income);
+		contract.print(result, new TaxPrinter());
 	}
 
-	private static double readIncome(BufferedReader reader) throws IOException {
+	private static Money readIncome(BufferedReader reader) throws IOException {
 		System.out.print("Enter income: ");
-		return Double.parseDouble(reader.readLine());
+		return Money.of(reader.readLine());
 	}
 
-	private static ContractType readContractType(BufferedReader reader) throws IOException {
+	private static Contract readContract(BufferedReader reader) throws IOException {
 		System.out.print("Contract Type: (E)mployment, (C)ivil: ");
-		return ContractType.fromCode(reader.readLine().charAt(0));
+		return ContractFactory.fromCode(reader.readLine().charAt(0));
 	}
 }
