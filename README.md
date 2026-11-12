@@ -1,65 +1,85 @@
 # taxcalculator
-TaxCalculator - um kata para um exercício de Clean Code
+TaxCalculator - a kata for a Clean Code exercise
 
-1ª Alteração - apaguei uma variável que estava declarada duas vezes nos campos static
+Authors:
+Gonçalo Alegria (ER-2317) 
+Rodrigo Nascimento (ER-2319)
 
-2ª Alteração - mudei o nome de advanceTaxPaidadvanceTax para advanceTaxPaid (na declaração e no calculateAdvanceTax()) porque o código usava advanceTaxPaid e essa variável não existia
+Each change has a description of what was done and a justification of why it was done. The Clean Code rule applied is in brackets.
 
-3ª Alteração - mudei soc_sick_secur para soc_sick_security no calculateIncome(), a variável tinha o nome errado
+## Part 1 - Fixing the code so it compiles and calculates correctly
 
-4ª Alteração - na parte do C o income era declarado outra vez e usado para se calcular a si próprio, mudei para d_income como na parte do E
+1st Change - deleted a variable that was declared twice in the static fields.
+Why: the code did not compile with a duplicated declaration.
 
-5ª Alteração - na parte do C havia uma variável advanceTax que não servia para nada, troquei por taxPaid porque a linha seguinte usa taxPaid e só estava declarada na parte do E
+2nd Change - renamed advanceTaxPaidadvanceTax to advanceTaxPaid (in the declaration and in calculateAdvanceTax()).
+Why: the code was using advanceTaxPaid, which did not exist, so it did not compile. The name was a copying mistake.
 
-6ª Alteração - o d_income (rendimento sem as contribuições sociais) era calculado mas nunca usado; agora é a base para o seguro de saúde, para o rendimento tributável e para as despesas dedutíveis do C (20%)
+3rd Change - changed soc_sick_secur to soc_sick_security in calculateIncome().
+Why: soc_sick_secur did not exist, the variable had the wrong name and the code did not compile.
 
-7ª Alteração - separei as contas dos outputs: o TaxCalculator só faz as contas e devolve um TaxResult, o TaxPrinter só imprime (Do one thing)
+4th Change - in the C branch, income was declared again and used to calculate itself; changed it to d_income like in the E branch.
+Why: declaring income again hid the static field and used a variable before it had a value, so it did not compile.
 
-8ª Alteração - as partes do E e do C tinham as mesmas contas copiadas, agora há só um calculate() (Needless repetition)
+5th Change - in the C branch, replaced a useless advanceTax variable with taxPaid.
+Why: the next line used taxPaid, which was only declared in the E branch, so the C branch did not compile. The advanceTax variable was never used.
 
-9ª Alteração - troquei os números mágicos (9.76, 1.5, 2.45, 9, 7.75, 18, 20, 111.25, 46.33) por constantes com nome (Replace magic numbers with named constants)
+6th Change - d_income (income minus social security) was calculated but never used; now it is the basis for the health tax, the taxed income and the C deductible expenses (20%).
+Why: the health tax and the income tax must be calculated on the income after social security, not on the gross income. The message "Income basis for health social security" already said this, but it printed the gross income, so the results were wrong.
 
-10ª Alteração - tirei as variáveis static globais que eram alteradas durante as contas, a parte do C mudava o taxFreeIncome e o taxDeductibleExpenses (Have no side effects)
+## Part 2 - Clean Code refactoring (the output stays the same as after the 6th change)
 
-11ª Alteração - mudei para nomes descritivos: d_income -> incomeBasis, soc_health1 -> healthTax, soc_health2 -> healthTaxDeductible, taxPaid -> reducedTax, df00 -> twoDecimals, df -> noDecimals, calculateIncome -> calculateSocialSecurity, calculateOtherTaxes -> calculateHealthTax (Choose descriptive and unambiguous names, Avoid encodings)
+7th Change - separated the calculations from the outputs: one part only does the math and returns a TaxResult, TaxPrinter only prints (Do one thing).
+Why: before, every line mixed a calculation with a print, so it was impossible to change how the result is shown without risking breaking the math, and the math could not be reused or tested without the console.
 
-12ª Alteração - cada classe no seu ficheiro: Main (input), TaxCalculator (contas), TaxResult (valores), TaxPrinter (outputs), ContractType, UnknownContractTypeException
+8th Change - the E and C branches had the same math copied; now there is only one calculation (Needless repetition).
+Why: with copied code, a fix in one branch had to be remembered in the other. The 4th and 5th changes were exactly bugs that existed only in one of the copies.
 
-13ª Alteração - o char 'E'/'C' passou a ser o enum ContractType, cada tipo de contrato sabe as suas despesas dedutíveis e o seu rendimento isento, por isso o calculate() já não precisa de if/else (Don't use flag arguments, Prefer polymorphism to if/else)
+9th Change - replaced the magic numbers (9.76, 1.5, 2.45, 9, 7.75, 18, 20, 111.25, 46.33) with named constants (Replace magic numbers with named constants).
+Why: a number alone does not say what it is; a name like ADVANCE_TAX_RATE explains itself, can be searched for and is changed in only one place.
 
-14ª Alteração - o try-catch ficou sozinho no main() e o resto foi para o run(); um tipo de contrato desconhecido agora lança UnknownContractTypeException (o try-catch é uma tarefa separada, exceções em vez de valores especiais)
+10th Change - removed the static global variables that were changed during the calculations; the C branch was changing taxFreeIncome and taxDeductibleExpenses (Have no side effects).
+Why: after running C, the global values stayed changed, so a later calculation could use the wrong values. The result depended on what ran before.
 
-15ª Alteração - dividi o calculate() em métodos pequenos: calculateSocialSecurity, calculateHealthTax, calculateAdvanceTax, calculateNetIncome, pela ordem em que são chamados (Small, Place functions in the downward direction)
+11th Change - renamed to descriptive names: d_income -> incomeBasis, soc_health1 -> healthTax, soc_health2 -> healthTaxDeductible, taxPaid -> reducedTax, df00 -> twoDecimals, df -> noDecimals, calculateIncome -> calculateSocialSecurity, calculateOtherTaxes -> calculateHealthTax (Choose descriptive and unambiguous names, Avoid encodings).
+Why: the old names lied or said nothing: calculateIncome calculated social security, taxPaid was printed as "Reduced tax", and prefixes like d_ and soc_ are encodings that carry no meaning.
 
-16ª Alteração - o TaxCalculator e o TaxPrinter usam métodos de instância em vez de static (Prefer non-static methods to static methods)
+12th Change - each class in its own file: Main (input), TaxResult (values), TaxPrinter (outputs), UnknownContractTypeException, and the calculation classes.
+Why: one file with everything had many responsibilities; with one class per file each one has a single reason to change and is easier to find and read.
 
-O output é igual ao que dava depois da 6ª alteração, testado com vários rendimentos para E e C, um tipo de contrato desconhecido e um rendimento inválido.
+13th Change - the char 'E'/'C' passed to the calculation became a type that knows its own deductible expenses and tax free income, so the calculation does not need if/else (Don't use flag arguments, Prefer polymorphism to if/else).
+Why: a flag argument means the method does more than one thing, and every new contract type would add another if/else in the middle of the math.
 
-Para correr: Main.java
+14th Change - the try-catch stays alone in main() and the work is in run(); an unknown contract type now throws UnknownContractTypeException.
+Why: according to Clean Code, a try-catch is a separate task and should be extracted. An exception is clearer than checking a special value and cannot be ignored.
 
+15th Change - the calculation was split into small methods: calculateSocialSecurity, calculateHealthInsurance, calculateAdvanceTax, calculateNetIncome, in the order they are called (Small, Place functions in the downward direction).
+Why: the single method was longer than one screen. With small methods with descriptive names, the main method reads like a list of steps, from the general to the details.
 
-## Possível alteração futura: trocar double por BigDecimal
+16th Change - instance methods instead of static ones (Prefer non-static methods to static methods).
+Why: static methods cannot be replaced or extended. With objects, the 20th change (one class per contract) became possible.
 
-Esta alteração ainda não foi feita porque muda alguns outputs, e até aqui o objetivo era manter o output igual.
+## Part 3 - Fixed precision and a new architecture (the results change by at most 0.01)
 
-Problema: o double guarda os números em binário e alguns decimais não têm representação exata (tal como 1/3 não tem em decimal, fica 0,3333...). Por isso as contas podem perder ou ganhar uma fração muito pequena e os erros vão-se acumulando nas várias percentagens e subtrações.
+17th Change - replaced double with fixed precision: the new Money class keeps money in a BigDecimal, always with 2 decimal places. Values are created from a String (Money.of("46.33")), not from a double (Prefer dedicated value objects to primitive type).
+Why: double is floating point, so it has no fixed decimal position and many decimal values have no exact binary representation (like 1/3 in decimal is 0.333...). Small errors appeared and accumulated: with 1000 and contract C the output was "income to be taxed = 690.3199999999999" instead of 690.32. Money has a fixed precision of 2 decimal places, like real money. Creating it from a String avoids bringing the double error into the BigDecimal.
 
-Isto já se vê no output atual:
-- com 1000 e contrato C aparece "income to be taxed = 690.3199999999999" em vez de 690.32
-- com 1234.56 e contrato E aparece "income 954.0518239999999" em vez de 954.051824
-- os valores incomeBasis, taxedIncome, advanceTax e taxDeductibleExpenses são impressos diretamente sem DecimalFormat, por isso estes erros aparecem no ecrã
+18th Change - rounding changed from HALF_EVEN to HALF_UP.
+Why: the old rounding came by default from DecimalFormat and rounded .5 to the even number (4202.5 -> 4202, 4203.5 -> 4204). In tax calculations .5 is normally rounded up. Now the rounding mode is explicit in one place (Money) instead of hidden in a formatter.
 
-Há também um problema no arredondamento: o DecimalFormat usa por defeito RoundingMode.HALF_EVEN, que arredonda o .5 para o número par (4202.5 -> 4202, 4203.5 -> 4204). Em contas de impostos o normal é HALF_UP (o .5 arredonda sempre para cima).
+19th Change - contracts are now built from blocks, in the blocks/ folder: SocialSecurity, HealthInsurance, DeductibleExpenses (with the versions FixedDeductibleExpenses and PercentageDeductibleExpenses) and AdvanceTax.
+Why: every contract is made of the same parts, only the values change. Each block does one thing, receives its values from the contract that uses it, and can be used and tested separately. If a part of the calculation changes, only that block changes.
 
-Solução:
-- usar BigDecimal em vez de double em todos os valores de dinheiro (TaxResult, TaxCalculator e ContractType)
-- criar os valores a partir de String (new BigDecimal("9.76")) e não a partir de double, senão o erro do double entra logo no BigDecimal
-- fazer o arredondamento com setScale(0, RoundingMode.HALF_UP) em vez do Double.parseDouble(df.format(...))
-- imprimir todos os valores com o mesmo formato, para o output ficar consistente
+20th Change - created the abstract superclass Contract with the calculation (the same for every contract) and the subclasses EmploymentContract and CivilContract, which only choose the blocks and their values. The old ContractType enum and TaxCalculator class were deleted (Prefer polymorphism to if/else, Base class should know nothing about their derivatives).
+Why: the architecture is now ready for new contracts and for changes in a single contract. The values are repeated in the two subclasses on purpose: this way one contract can change (for example a different rate) without touching the other.
 
-Consequência: alguns valores do output mudam ligeiramente (por exemplo 690.3199999999999 passa a 690.32 e alguns arredondamentos de .5 passam a ir para cima), por isso deve ser uma alteração separada e testada à parte.
+21st Change - ContractFactory creates the contract from the letter (E or C).
+Why: the switch on the letter is in only one place, as Clean Code suggests for switch statements (convert it to a factory). To add a new contract you only need a new subclass of Contract with its blocks and values, one case in ContractFactory and one print method in TaxPrinter, without changing the existing contracts.
 
+22nd Change - TaxPrinter no longer has a switch; each contract calls its own print. All money values are printed with 2 decimal places.
+Why: the switch on the contract type is replaced by polymorphism. Before, some values were printed as 4314.5 or 2876.330457 and zero as ".00", now the output is consistent.
 
-usar fixed precisition, em flloating point não ha uma fixed position
+## Tests
 
-redesenhar a arquitetura para caso haja novos contratos, para caso haja alterações num só contrato, como criar uma super classe para o contrato e depois classes filhos para os diferentes contratos. Os contrartos são construidos de blocos especificos, os blocos são os mesmos mas as infos diferentes, criar blocos e usar sepradamente
+Parts 2 and 3 were tested with 10 incomes for E and C, an unknown contract type and an invalid income. In Part 2 the output is identical to the output after the 6th change. In Part 3 the results change by at most 0.01, because every value is now rounded to 2 decimal places like real money.
+
